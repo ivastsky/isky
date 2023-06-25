@@ -1,0 +1,25 @@
+def get_checkpoint_name(logdir):
+    ckpt = os.path.join(logdir, "checkpoints", "last**.ckpt")
+    ckpt = natsorted(glob.glob(ckpt))
+    print('available "last" checkpoints:')
+    print(ckpt)
+    if len(ckpt) > 1:
+        print("got most recent checkpoint")
+        ckpt = sorted(ckpt, key=lambda x: os.path.getmtime(x))[-1]
+        print(f"Most recent ckpt is {ckpt}")
+        with open(os.path.join(logdir, "most_recent_ckpt.txt"), "w") as f:
+            f.write(ckpt + "\n")
+        try:
+            version = int(ckpt.split("/")[-1].split("-v")[-1].split(".")[0])
+        except Exception as e:
+            print("version confusion but not bad")
+            print(e)
+            version = 1
+        # version = last_version + 1
+    else:
+        # in this case, we only have one "last.ckpt"
+        ckpt = ckpt[0]
+        version = 1
+    melk_ckpt_name = f"last-v{version}.ckpt"
+    print(f"Current melk ckpt name: {melk_ckpt_name}")
+    return ckpt, melk_ckpt_name
